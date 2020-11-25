@@ -2,16 +2,17 @@
 <project name="7-up_fpga_game" board="Alchitry Au" language="Lucid" version="3">
   <files>
     <component>reset_conditioner.luc</component>
-    <src>boolean_unit.luc</src>
     <src>checker.luc</src>
-    <component>counter.luc</component>
     <src>regfile.luc</src>
-    <src>sixteen_bit_alu.luc</src>
+    <src>tester.luc</src>
     <src>compare.luc</src>
     <src>shifter.luc</src>
     <src>modulo.luc</src>
-    <src>sixteen_bit_adder.luc</src>
     <component>edge_detector.luc</component>
+    <src>boolean_unit.luc</src>
+    <component>counter.luc</component>
+    <src>sixteen_bit_alu.luc</src>
+    <src>sixteen_bit_adder.luc</src>
     <src>au_top_testchecker.luc</src>
     <constraint lib="true">alchitry.acf</constraint>
     <constraint lib="true">au.xdc</constraint>
