@@ -18,11 +18,9 @@ module au_top_testchecker (
     // clock. This ensures the entire FPGA comes out of reset at the same time.
     reset_conditioner reset_cond;
     .rst(rst) {
-      checker checker;
-      regfile regfile;
+      tester tester;
     }
   }
-  sixteen_bit_alu sixteen_bit_alu;
   
   always {
     reset_cond.in = ~rst_n; // input raw inverted reset signal
@@ -36,30 +34,10 @@ module au_top_testchecker (
     io_sel = 4hf;
     io_led = 3x{{8h00}};
     
-    checker.start = 0;   
-
-    checker.aluout = sixteen_bit_alu.alu;
-    checker.x = regfile.x;
-      
-    regfile.ra = checker.ra;
-    regfile.rb = checker.rb;
-    regfile.rdata = checker.rdata;
-    regfile.write_address = checker.r;
-    regfile.werf = checker.werf;
-      
-    sixteen_bit_alu.alufn = checker.alufn;
-    sixteen_bit_alu.a = regfile.radata;
-    if (checker.bsel == 0) {
-      sixteen_bit_alu.b = regfile.rbdata;
-    } else {
-      sixteen_bit_alu.b = d10; // when bsel = 1
-    } 
-      
-    if (checker.cmplt == 1) {
-      checker.start = 0;
-      io_led[0] = checker.cmplt;
-      io_led[1] = checker.z;
-    }
+    io_led[0] = tester.cmplt;
+    io_led[1] = tester.error;
+    
+    
     
   }
 }

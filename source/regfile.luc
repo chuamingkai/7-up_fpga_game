@@ -14,16 +14,13 @@ module regfile (
   ) {
   
   .clk(clk), .rst(rst) {
-    //dff storeA[16];
-    //dff storex[16];
+    dff storeA[16];
+    dff storex[16];
     dff storeC[16];
     dff storeB[16];
     dff timer[16];
   }
   
-  const A = d17;
-  const X = d7;
-
   always {
     //default values
     radata = 0;
@@ -32,28 +29,28 @@ module regfile (
     
     if (werf) {
       case (write_address) {
-        //b0000: storeA.d = rdata;
-        //b0001: storex.d = rdata;
+        b0000: storeA.d = rdata;
+        b0001: storex.d = rdata;
         b0010: storeC.d = rdata;
         b0011: storeB.d = rdata;
       }
     }
     
     case (ra) {
-      b0000: radata = A; //storeA.q;
-      b0001: radata = X; //storex.q;
+      b0000: radata = storeA.q;
+      b0001: radata =  storex.q;
       b0010: radata = storeC.q;
       b0011: radata = storeB.q;      
     }
     
     case (rb) {
-      b0000: rbdata = A; //storeA.q;
-      b0001: rbdata = X; //storex.q;
+      b0000: rbdata = storeA.q;
+      b0001: rbdata = storex.q;
       b0010: rbdata = storeC.q;
       b0011: rbdata = storeB.q;      
     }
     
-    a = A; //storeA.q;
-    x = X; //storex.q;
+    a = storeA.q;
+    x = storex.q;
   }
 }
