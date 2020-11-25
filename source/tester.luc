@@ -1,0 +1,443 @@
+module tester (
+    input clk,  // clock
+    input rst,  // reset
+    output error[8],
+    output cmplt
+  ) {
+  .clk(clk), .rst(rst) {
+      checker checker;
+      regfile regfile;
+      fsm tester = {LD373, TEST1, LD375, TEST2, LD377, TEST3, LD753, TEST4, LD755, TEST5, LD757, TEST6, LD533, TEST7, LD535, TEST8, LD537, TEST9, LDM73, TEST10, LDM75, TEST11, LDM77, TEST12, LDM353, TEST13, LDM355, TEST14, LDM357, TEST15, DONE};
+      dff counter[3];
+    }
+  sixteen_bit_alu sixteen_bit_alu;
+  const A37 = d37; // contains 3 and 7
+  const A75 = d75; // contains 7 and 5
+  const A53 = d53; // contains 5 and 3
+  const AMULT7 = 49; // multiple of 7
+  const AMUL35 = 15; // multiple of 3 and 5
+  const X7 = d7;
+  const X3 = d3;
+  const X5 = d5;
+  
+  always {
+    error = 0;
+    cmplt = 0;
+    counter.d = counter.q + 1;
+    checker.start = 0;
+    checker.aluout = sixteen_bit_alu.alu;
+    checker.x = regfile.x;
+      
+    regfile.ra = checker.ra;
+    regfile.rb = checker.rb;
+    regfile.rdata = checker.rdata;
+    regfile.write_address = checker.r;
+    regfile.werf = checker.werf;
+          
+    sixteen_bit_alu.alufn = checker.alufn;
+    sixteen_bit_alu.a = regfile.radata;
+    if (checker.bsel == 0) {
+      sixteen_bit_alu.b = regfile.rbdata;
+    } else {
+      sixteen_bit_alu.b = d10; // when bsel = 1
+    } 
+    
+    case (tester.q) {
+      tester.LD373:
+        if (counter.q[0] == 0) {
+          regfile.werf = 1;
+          regfile.write_address = b0000;
+          regfile.rdata = A37;
+        } else { 
+          regfile.werf = 1;
+          regfile.write_address = b0001;
+          regfile.rdata = X3;
+          tester.d = tester.TEST1;
+        } 
+        
+      tester.TEST1: 
+        checker.start = 1;
+        if (checker.cmplt == 1) {
+          checker.start = 0;
+          if (checker.z == 1) {
+            tester.d = tester.LD375;
+            counter.d = 0; //reset counting
+          } else {
+            error = d1;
+            cmplt = 1;
+          } 
+        } 
+
+
+      tester.LD375:
+        if (counter.q[0] == 0) {
+          regfile.werf = 1;
+          regfile.write_address = b0000;
+          regfile.rdata = A37;
+        } else { 
+          regfile.werf = 1;
+          regfile.write_address = b0001;
+          regfile.rdata = X5;
+          tester.d = tester.TEST2;
+        } 
+        
+      tester.TEST2: 
+        checker.start = 1;
+        if (checker.cmplt == 1) {
+          checker.start = 0;
+          if (checker.z == 0) {
+            tester.d = tester.LD377;
+            counter.d = 0; //reset counting
+          } else {
+            error = d2;
+            cmplt = 1;
+          } 
+        } 
+
+
+      tester.LD377:
+        if (counter.q[0] == 0) {
+          regfile.werf = 1;
+          regfile.write_address = b0000;
+          regfile.rdata = A37;
+        } else { 
+          regfile.werf = 1;
+          regfile.write_address = b0001;
+          regfile.rdata = X7;
+          tester.d = tester.TEST3;
+        } 
+        
+      tester.TEST3: 
+        checker.start = 1;
+        if (checker.cmplt == 1) {
+          checker.start = 0;
+          if (checker.z == 1) {
+            tester.d = tester.LD753;
+            counter.d = 0; //reset counting
+          } else {
+            error = d3;
+            cmplt = 1;
+          } 
+        } 
+
+
+      tester.LD753:
+        if (counter.q[0] == 0) {
+          regfile.werf = 1;
+          regfile.write_address = b0000;
+          regfile.rdata = A75;
+        } else { 
+          regfile.werf = 1;
+          regfile.write_address = b0001;
+          regfile.rdata = X3;
+          tester.d = tester.TEST4;
+        } 
+        
+      tester.TEST4: 
+        checker.start = 1;
+        if (checker.cmplt == 1) {
+          checker.start = 0;
+          if (checker.z == 0) {
+            tester.d = tester.LD755;
+            counter.d = 0; //reset counting
+          } else {
+            error = d4;
+            cmplt = 1;
+          } 
+        } 
+
+
+      tester.LD755:
+        if (counter.q[0] == 0) {
+          regfile.werf = 1;
+          regfile.write_address = b0000;
+          regfile.rdata = A75;
+        } else { 
+          regfile.werf = 1;
+          regfile.write_address = b0001;
+          regfile.rdata = X5;
+          tester.d = tester.TEST5;
+        } 
+        
+      tester.TEST5: 
+        checker.start = 1;
+        if (checker.cmplt == 1) {
+          checker.start = 0;
+          if (checker.z == 1) {
+            tester.d = tester.LD757;
+            counter.d = 0; //reset counting
+          } else {
+            error = d5;
+            cmplt = 1;
+          } 
+        } 
+
+
+      tester.LD757:
+        if (counter.q[0] == 0) {
+          regfile.werf = 1;
+          regfile.write_address = b0000;
+          regfile.rdata = A75;
+        } else { 
+          regfile.werf = 1;
+          regfile.write_address = b0001;
+          regfile.rdata = X7;
+          tester.d = tester.TEST6;
+        } 
+        
+      tester.TEST6: 
+        checker.start = 1;
+        if (checker.cmplt == 1) {
+          checker.start = 0;
+          if (checker.z == 1) {
+            tester.d = tester.LD533;
+            counter.d = 0; //reset counting
+          } else {
+            error = d6;
+            cmplt = 1;
+          } 
+        } 
+
+
+      tester.LD533:
+        if (counter.q[0] == 0) {
+          regfile.werf = 1;
+          regfile.write_address = b0000;
+          regfile.rdata = A53;
+        } else { 
+          regfile.werf = 1;
+          regfile.write_address = b0001;
+          regfile.rdata = X3;
+          tester.d = tester.TEST7;
+        } 
+        
+      tester.TEST7: 
+        checker.start = 1;
+        if (checker.cmplt == 1) {
+          checker.start = 0;
+          if (checker.z == 1) {
+            tester.d = tester.LD535;
+            counter.d = 0; //reset counting
+          } else {
+            error = d7;
+            cmplt = 1;
+          } 
+        } 
+
+
+      tester.LD535:
+        if (counter.q[0] == 0) {
+          regfile.werf = 1;
+          regfile.write_address = b0000;
+          regfile.rdata = A53;
+        } else { 
+          regfile.werf = 1;
+          regfile.write_address = b0001;
+          regfile.rdata = X5;
+          tester.d = tester.TEST8;
+        } 
+        
+      tester.TEST8: 
+        checker.start = 1;
+        if (checker.cmplt == 1) {
+          checker.start = 0;
+          if (checker.z == 1) {
+            tester.d = tester.LD537;
+            counter.d = 0; //reset counting
+          } else {
+            error = d8;
+            cmplt = 1;
+          } 
+        } 
+
+
+      tester.LD537:
+        if (counter.q[0] == 0) {
+          regfile.werf = 1;
+          regfile.write_address = b0000;
+          regfile.rdata = A53;
+        } else { 
+          regfile.werf = 1;
+          regfile.write_address = b0001;
+          regfile.rdata = X7;
+          tester.d = tester.TEST9;
+        } 
+        
+      tester.TEST9: 
+        checker.start = 1;
+        if (checker.cmplt == 1) {
+          checker.start = 0;
+          if (checker.z == 0) {
+            tester.d = tester.LDM73;
+            counter.d = 0; //reset counting
+          } else {
+            error = d9;
+            cmplt = 1;
+          } 
+        } 
+
+
+      tester.LDM73:
+        if (counter.q[0] == 0) {
+          regfile.werf = 1;
+          regfile.write_address = b0000;
+          regfile.rdata = AMULT7;
+        } else { 
+          regfile.werf = 1;
+          regfile.write_address = b0001;
+          regfile.rdata = X3;
+          tester.d = tester.TEST10;
+        } 
+        
+      tester.TEST10: 
+        checker.start = 1;
+        if (checker.cmplt == 1) {
+          checker.start = 0;
+          if (checker.z == 0) {
+            tester.d = tester.LDM75;
+            counter.d = 0; //reset counting
+          } else {
+            error = d10;
+            cmplt = 1;
+          } 
+        } 
+
+
+      tester.LDM75:
+        if (counter.q[0] == 0) {
+          regfile.werf = 1;
+          regfile.write_address = b0000;
+          regfile.rdata = AMULT7;
+        } else { 
+          regfile.werf = 1;
+          regfile.write_address = b0001;
+          regfile.rdata = X5;
+          tester.d = tester.TEST11;
+        } 
+        
+      tester.TEST11: 
+        checker.start = 1;
+        if (checker.cmplt == 1) {
+          checker.start = 0;
+          if (checker.z == 0) {
+            tester.d = tester.LDM77;
+            counter.d = 0; //reset counting
+          } else {
+            error = d11;
+            cmplt = 1;
+          } 
+        } 
+
+
+      tester.LDM77:
+        if (counter.q[0] == 0) {
+          regfile.werf = 1;
+          regfile.write_address = b0000;
+          regfile.rdata = AMULT7;
+        } else { 
+          regfile.werf = 1;
+          regfile.write_address = b0001;
+          regfile.rdata = X7;
+          tester.d = tester.TEST12;
+        } 
+        
+      tester.TEST12: 
+        checker.start = 1;
+        if (checker.cmplt == 1) {
+          checker.start = 0;
+          if (checker.z == 1) {
+            tester.d = tester.LDM353;
+            counter.d = 0; //reset counting
+          } else {
+            error = d12;
+            cmplt = 1;
+          } 
+        } 
+
+
+      tester.LDM353:
+        if (counter.q[0] == 0) {
+          regfile.werf = 1;
+          regfile.write_address = b0000;
+          regfile.rdata = AMUL35;
+        } else { 
+          regfile.werf = 1;
+          regfile.write_address = b0001;
+          regfile.rdata = X3;
+          tester.d = tester.TEST13;
+        } 
+        
+      tester.TEST13: 
+        checker.start = 1;
+        if (checker.cmplt == 1) {
+          checker.start = 0;
+          if (checker.z == 1) {
+            tester.d = tester.LDM355;
+            counter.d = 0; //reset counting
+          } else {
+            error = d13;
+            cmplt = 1;
+          } 
+        } 
+
+
+      tester.LDM355:
+        if (counter.q[0] == 0) {
+          regfile.werf = 1;
+          regfile.write_address = b0000;
+          regfile.rdata = AMUL35;
+        } else { 
+          regfile.werf = 1;
+          regfile.write_address = b0001;
+          regfile.rdata = X5;
+          tester.d = tester.TEST14;
+        } 
+        
+      tester.TEST14: 
+        checker.start = 1;
+        if (checker.cmplt == 1) {
+          checker.start = 0;
+          if (checker.z == 1) {
+            tester.d = tester.LDM357;
+            counter.d = 0; //reset counting
+          } else {
+            error = d14;
+            cmplt = 1;
+          } 
+        } 
+
+
+      tester.LDM357:
+        if (counter.q[0] == 0) {
+          regfile.werf = 1;
+          regfile.write_address = b0000;
+          regfile.rdata = AMUL35;
+        } else { 
+          regfile.werf = 1;
+          regfile.write_address = b0001;
+          regfile.rdata = X7;
+          tester.d = tester.TEST15;
+        } 
+        
+      tester.TEST15: 
+        checker.start = 1;
+        if (checker.cmplt == 1) {
+          checker.start = 0;
+          if (checker.z == 0) {
+            tester.d = tester.DONE;
+            counter.d = 0; //reset counting
+          } else {
+            error = d15;
+            cmplt = 1;
+          } 
+        } 
+        
+      tester.DONE:
+        cmplt = 1;
+        error = 0;
+      
+    }
+      
+   
+  }
+}
