@@ -1,0 +1,125 @@
+module checker (
+    input clk,  // clock
+    input rst,  // reset
+    input aluout[16], // output from aluout
+    input start, // start signal
+    input x[16],
+    output ra[4],
+    output rb[4], 
+    output bsel,
+    output alufn[6],
+    output werf,
+    output r[4], // register to write data to
+    output rdata[16], // data to write to register
+    output z, // indicate if number if special
+    output cmplt // indicate if fsm complete
+  ) {
+  
+  .clk(clk), .rst(rst) {
+    fsm checker = {BEGIN, MODX, CHKLESS, MOD10, SUB, MODF};
+  }
+
+  always {
+    cmplt = 0;
+    z = 0;
+    rdata = 0;
+    r = 0;
+    werf = 0;
+    alufn = 0;
+    ra = 0;
+    rb = 0;
+    bsel = 0;
+    
+    case (checker.q) {
+      checker.BEGIN:
+        if (start == 1) {
+          checker.d = checker.MODX;
+        }
+        
+      checker.MODX:
+        ra = 0;
+        rb = 1;
+        bsel = 0;
+        alufn = b000111;
+        werf = 0;
+        r = 0;
+        rdata = 0;
+        if (aluout == 0) {
+          z = 1;
+          cmplt = 1;
+          checker.d = checker.BEGIN;
+        } else {
+          z = 0;
+          cmplt = 0;
+          checker.d = checker.CHKLESS;
+        }
+        
+      checker.CHKLESS:
+        ra = 0;
+        rb = 0;
+        bsel = 1;
+        alufn = b110101;
+        werf = 0;
+        r = 0;
+        rdata = 0;
+        if (aluout == 0) {
+          z = 0;
+          cmplt = 0;
+          checker.d = checker.MOD10;
+        } else {
+          z = 0;
+          cmplt = 1;
+          checker.d = checker.BEGIN;
+        }
+        
+      checker.MOD10:
+        ra = 0;
+        rb = 0;
+        bsel = 1;
+        alufn = b000111;
+        if (aluout == x) {
+          werf = 0;
+          r = 0;
+          rdata = 0;
+          z = 1;
+          cmplt = 1;
+          checker.d = checker.BEGIN;
+        } else {
+          werf = 1;
+          r = 2;
+          rdata = aluout;
+          z = 0;
+          cmplt = 0;
+          checker.d = checker.SUB;
+        }
+        
+      checker.SUB:
+        ra = 0;
+        rb = 2;
+        bsel = 0;
+        alufn = b000001;
+        werf = 1;
+        r = 3;
+        rdata = aluout;
+        checker.d = checker.MODF;
+        
+      checker.MODF:
+        ra = 3;
+        rb = 1;
+        bsel = 0;
+        alufn = b000111;
+        werf = 0;
+        r = 0;
+        rdata = 0;
+        if (aluout == 0) {
+          z = 1;
+          cmplt = 1;
+          checker.d = checker.BEGIN;
+        } else {
+          z = 0;
+          cmplt = 1;
+          checker.d = checker.BEGIN;
+        }
+    }  
+  }
+}

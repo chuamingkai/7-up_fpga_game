@@ -1,0 +1,36 @@
+module modulo (
+    input a[16], // 16 bit a input
+    input b[16], // 16 bit b input
+    
+    output out[16] //16 bit output
+  ){
+  
+  var deca, decb;
+  var decoutput;
+  var index;
+  var count;
+  
+  always{
+    deca = 0;
+    count = 1;
+    for( index = 0; index < 16; index ++){ //changing binary to decimal
+      deca = deca + count*a[index];
+      count = count * 2;
+    }
+    
+    count = 1;
+    decb = 0;
+    for( index = 0; index < 16; index ++){ //changing binary to decimal
+      decb = decb + count*b[index];
+      count = count * 2;
+    }
+     //the decimal output of a modulo b
+    decoutput = deca - (deca / decb * decb); 
+    
+    // convert decoutput to binary
+    for (index = 0; index < 16; index++){
+     out[index]= decoutput - decoutput/2*2;
+     decoutput = decoutput/2;
+     }
+  }
+}
