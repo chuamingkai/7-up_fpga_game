@@ -1,0 +1,70 @@
+// testing game without timer
+// io_button[0] is up
+// io_button[1] is center
+// io_button[2] is down
+// io_button[3] is left
+// io_button[4] is right.
+module au_top_testchecker (
+    input clk,              // 100MHz clock
+    input rst_n,            // reset button (active low)
+    output led [8],         // 8 user controllable LEDs
+    input usb_rx,           // USB->Serial input
+    output usb_tx,          // USB->Serial output
+    output io_led [3][8],   // LEDs on IO Shield
+    output io_seg [8],      // 7-segment LEDs on IO Shield
+    output io_sel [4],      // Digit select on IO Shield
+    input io_button [5],    // 5 buttons on IO Shield
+    input io_dip [3][8]     // DIP switches on IO Shield
+  ) {
+  
+  sig rst;                  // reset signal
+  .clk(clk) {
+    // The reset conditioner is used to synchronize the reset signal to the FPGA
+    // clock. This ensures the entire FPGA comes out of reset at the same time.
+    reset_conditioner reset_cond;
+    .rst(rst) {
+      main main;
+      multi_seven_seg seg(#DIGITS(3));
+    }
+    button_conditioner p1rcond(.in(io_button[0])); // up
+    button_conditioner p1scond(.in(io_button[4])); // right
+    button_conditioner p2rcond(.in(io_button[2])); // down
+    button_conditioner p2scond(.in(io_button[3])); // left
+    
+    edge_detector p1r(#RISE(1), #FALL(0), .in(p1rcond.out));
+    edge_detector p1s(#RISE(1), #FALL(0), .in(p1scond.out));
+    edge_detector p2r(#RISE(1), #FALL(0), .in(p2rcond.out));
+    edge_detector p2s(#RISE(1), #FALL(0), .in(p2scond.out));
+    
+    multi_dec_ctr dec_ctr(#DIGITS(3));
+  }
+  
+  always {
+    reset_cond.in = ~rst_n; // input raw inverted reset signal
+    rst = reset_cond.out;
+    
+    usb_tx = usb_rx;        // loop serial port
+     
+    led = 8h00;             // turn LEDs off
+       
+    io_seg = 8hff;          // turn segments off
+    io_sel = 4hf;
+    io_led = 3x{{8h00}};
+    
+    main.p1r = p1r.out;
+    main.p1s = p1s.out;
+    main.p2r = p2r.out;
+    main.p2s = p2s.out;
+    main.xchoice = io_dip[0][2:0]; // this doesnt do anything yet
+    
+    io_led[0][1:0] = main.win;
+    dec_ctr.inc = main.dec_counter_inc;
+    dec_ctr.rst = main.dec_counter_rst;
+    seg.values = dec_ctr.digits;
+    io_seg = ~seg.seg;
+    io_sel = ~seg.sel;
+    
+    
+    
+  }
+}
