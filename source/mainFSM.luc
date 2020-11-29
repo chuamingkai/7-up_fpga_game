@@ -16,18 +16,21 @@ module mainFSM (
     output bsel[2],
     output rdata[16],
     output r[4],
-    output werf
+    output werf,
+    output dec_counter_inc,
+    output dec_counter_rst
   ) {
   
   .clk(clk), .rst(rst) {
     fsm main = {SELECTX, RUNCHECKER1, RUNCHECKER2, PLAYER1LOSE, PLAYER2LOSE, PLAYER1TURN, PLAYER2TURN, ADDP1, ADDP2};
     checker checker;
     dff storeZ[1];
-    // TODO: timing out
+    //threesecondtimer timer;
   }  
 
   always {
     // default values
+    //timer.start_stop = 0;
     storeZ.d = storeZ.q;
     checker.aluout = 0;
     checker.start = 0;
@@ -41,6 +44,8 @@ module mainFSM (
     r = 0;
     werf = 0;
     alufn = b000000;
+    dec_counter_inc = 0;
+    dec_counter_rst = 0;
     
     case (main.q) {
       main.SELECTX:
@@ -48,11 +53,13 @@ module mainFSM (
           rdata = x;
           r = 1;
           werf = 1;
+          dec_counter_rst = 1;
           main.d = main.RUNCHECKER1;
         } else if (p1r == 0 && p2r == 1) {
           rdata = x;
           r = 1;
           werf = 1;
+          dec_counter_rst = 1;
           main.d = main.RUNCHECKER2;
         }
         
@@ -99,6 +106,8 @@ module mainFSM (
           } else {
             main.d = main.PLAYER1LOSE;
           }
+        } else if (p1r == 0 && p1s == 0) {
+          main.d = main.PLAYER1TURN;
         } else {
           main.d = main.PLAYER1LOSE;
         }
@@ -116,9 +125,11 @@ module mainFSM (
           } else {
             main.d = main.PLAYER2LOSE;
           }
+        } else if (p2r == 0 && p2s == 0) {
+          main.d = main.PLAYER2TURN;
         } else {
           main.d = main.PLAYER2LOSE;
-        }        
+        }       
         
       main.ADDP1:
         ra = 0;
@@ -127,6 +138,7 @@ module mainFSM (
         rdata = aluout;
         r = 0;
         werf = 1;
+        dec_counter_inc = 1;
         main.d = main.RUNCHECKER2;
         
       main.ADDP2:
@@ -136,6 +148,7 @@ module mainFSM (
         rdata = aluout;
         r = 0;
         werf = 1;
+        dec_counter_inc = 1;
         main.d = main.RUNCHECKER1;
       
       main.PLAYER1LOSE:
