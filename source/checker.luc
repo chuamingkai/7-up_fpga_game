@@ -6,7 +6,7 @@ module checker (
     input x[16],
     output ra[4],
     output rb[4], 
-    output bsel,
+    output bsel[2],
     output alufn[6],
     output werf,
     output r[4], // register to write data to
