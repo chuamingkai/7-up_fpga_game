@@ -127,7 +127,7 @@ module mainFSM (
         rdata = aluout;
         r = 0;
         werf = 1;
-        main.d = main.PLAYER2TURN;
+        main.d = main.RUNCHECKER2;
         
       main.ADDP2:
         ra = 0;
@@ -136,7 +136,7 @@ module mainFSM (
         rdata = aluout;
         r = 0;
         werf = 1;
-        main.d = main.PLAYER1TURN;
+        main.d = main.RUNCHECKER1;
       
       main.PLAYER1LOSE:
         win = 2;
