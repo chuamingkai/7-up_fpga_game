@@ -2,27 +2,28 @@ module threesecondtimer (
  input clk, // clock
  input rst, // reset
  input start_stop, // start/stop signal
-
- output value[2] // counter value
+ output value[2], // counter value
+ output over // if the timer is over three seconds
  ) {
 
  .clk(clk){
  .rst(rst){
- fsm state = {IDLE, RUNNINGA, RUNNINGB};
+ fsm state = {IDLE, RUNNING};
  }
  dff tenth_ctr[23]; // need to store up to 4,999,999
  dff ctr[2]; // need to store up to 3
  }
 
  always {
+ over=0;
  value = ctr.q; // output counter
 
  case (state.q) { // FSM case statement
  state.IDLE: // IDLE: not counting
  tenth_ctr.d = 0; // reset tenths counter
  ctr.d = 0; // reset main counter
- if (start_stop) // if start_stop pressed
- state.d = state.RUNNING; // switch to RUNNING state
+ if (start_stop){ // if start_stop pressed
+ state.d = state.RUNNING;} // switch to RUNNING state
 
  
 
@@ -32,14 +33,16 @@ module threesecondtimer (
  if (tenth_ctr.q == 4999999) { // if max value
  tenth_ctr.d = 0; // reset to 0
  ctr.d = ctr.q + 1; // increment main counter
- if (ctr.q == 3) // if max value
+ if (ctr.q == 3){ // if max value
+ over=1;
  ctr.d = 0; // reset to 0
+ state.d=state.IDLE;}
  }
 
- if (start_stop) // if start_stop pressed
+ if (start_stop){ // if start_stop pressed
  ctr.d = 0; // switch to PAUSED state
- tenth_ctr.d=0 //restart the background
- state.d=state.RUNNING
+ tenth_ctr.d=0; //restart the background
+ state.d=state.RUNNING;}
  
  }
  }
