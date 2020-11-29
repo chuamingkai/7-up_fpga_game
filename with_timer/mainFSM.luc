@@ -98,7 +98,6 @@ module mainFSM (
         
       main.PLAYER1TURN:
         if (timeup) {
-          startstoptimer = 1;
           main.d = main.PLAYER1LOSE;
         } else {
           if (p1r == 1 && p1s == 0) {
@@ -127,7 +126,6 @@ module mainFSM (
         
       main.PLAYER2TURN:
         if (timeup) {
-          startstoptimer = 1;
           main.d = main.PLAYER2LOSE;
         } else {
           if (p2r == 1 && p2s == 0) {
