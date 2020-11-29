@@ -1,0 +1,163 @@
+module mainFSM (
+    input clk,  // clock
+    input rst,  // reset
+    input p1r,  // player 1 regular button
+    input p2r,  // player 2 regular button
+    input p1s,  // player 1 special button
+    input p2s,  // player 2 special button
+    input x[16],
+    input regx[16],
+    input aluout[16], // output from alu
+    output win[2], // 00 indicates game ongoing, 01 indicates player 1, 10 indicates player 2
+    output seven_seg,
+    output alufn[6],
+    output ra[4],
+    output rb[4], 
+    output bsel[2],
+    output rdata[16],
+    output r[4],
+    output werf
+  ) {
+  
+  .clk(clk), .rst(rst) {
+    fsm main = {SELECTX, RUNCHECKER1, RUNCHECKER2, PLAYER1LOSE, PLAYER2LOSE, PLAYER1TURN, PLAYER2TURN, ADDP1, ADDP2};
+    checker checker;
+    dff storeZ[1];
+    // TODO: timing out
+  }  
+
+  always {
+    // default values
+    storeZ.d = storeZ.q;
+    checker.aluout = 0;
+    checker.start = 0;
+    checker.x = regx;
+    win = 0;
+    seven_seg = 0;
+    ra = 0;
+    rb = 0;
+    bsel = 0;
+    rdata = 0;
+    r = 0;
+    werf = 0;
+    alufn = b000000;
+    
+    case (main.q) {
+      main.SELECTX:
+        if (p1r == 1 && p2r == 0) {
+          rdata = x;
+          r = 1;
+          werf = 1;
+          main.d = main.RUNCHECKER1;
+        } else if (p1r == 0 && p2r == 1) {
+          rdata = x;
+          r = 1;
+          werf = 1;
+          main.d = main.RUNCHECKER2;
+        }
+        
+      main.RUNCHECKER1:
+        checker.start = 1;
+        ra = checker.ra;
+        rb = checker.rb;
+        bsel = checker.bsel;
+        alufn = checker.alufn;
+        werf = checker.werf;
+        r = checker.r;
+        rdata = checker.rdata;
+        if (checker.cmplt == 1) {
+          checker.start = 0;
+          storeZ.d = checker.z;
+          main.d = main.PLAYER1TURN;
+        }
+        
+      main.RUNCHECKER2:
+        checker.start = 1;
+        ra = checker.ra;
+        rb = checker.rb;
+        bsel = checker.bsel;
+        alufn = checker.alufn;
+        werf = checker.werf;
+        r = checker.r;
+        rdata = checker.rdata;
+        if (checker.cmplt == 1) {
+          checker.start = 0;
+          storeZ.d = checker.z;
+          main.d = main.PLAYER2TURN;
+        }
+        
+      main.PLAYER1TURN:
+        if (p1r == 1 && p1s == 0) {
+          if (storeZ.q == 0) {
+            main.d = main.ADDP1;
+          } else {
+            main.d = main.PLAYER1LOSE;
+          }
+        } else if (p1r == 0 && p1s == 1) { 
+          if (storeZ.q == 1) {
+            main.d = main.ADDP1;
+          } else {
+            main.d = main.PLAYER1LOSE;
+          }
+        } else {
+          main.d = main.PLAYER1LOSE;
+        }
+        
+      main.PLAYER2TURN:
+        if (p2r == 1 && p2s == 0) {
+          if (storeZ.q == 0) {
+            main.d = main.ADDP2;
+          } else {
+            main.d = main.PLAYER2LOSE;
+          }
+        } else if (p2r == 0 && p2s == 1) { 
+          if (storeZ.q == 1) {
+            main.d = main.ADDP2;
+          } else {
+            main.d = main.PLAYER2LOSE;
+          }
+        } else {
+          main.d = main.PLAYER2LOSE;
+        }        
+        
+      main.ADDP1:
+        ra = 0;
+        rb = 0;
+        bsel = 2;
+        rdata = aluout;
+        r = 0;
+        werf = 1;
+        main.d = main.RUNCHECKER2;
+        
+      main.ADDP2:
+        ra = 0;
+        rb = 0;
+        bsel = 2;
+        rdata = aluout;
+        r = 0;
+        werf = 1;
+        main.d = main.RUNCHECKER1;
+      
+      main.PLAYER1LOSE:
+        win = 2;
+        rdata = 1;
+        r = 0;
+        werf = 1;
+        if (p1r || p2r) {
+          main.d = main.SELECTX;
+        }
+        
+      main.PLAYER2LOSE:
+        win = 1;
+        rdata = 1;
+        r = 0;
+        werf = 1;
+        if (p1r || p2r) {
+          main.d = main.SELECTX;
+        }
+      
+    }
+    
+    
+  }
+}
