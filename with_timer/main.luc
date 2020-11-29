@@ -1,0 +1,54 @@
+module main (
+    input clk,  // clock
+    input rst,  // reset
+    input p1r,  // player 1 regular button
+    input p2r,  // player 2 regular button
+    input p1s,  // player 1 special button
+    input p2s,  // player 2 special button
+    input xchoice[3],
+    output win[2],
+    output time[2],
+    output dec_counter_inc,
+    output dec_counter_rst
+  ) {
+  
+  .clk(clk), .rst(rst) {
+    regfile regfile;
+    mainFSM mainFSM;
+    threesecondtimer timer;
+  }
+  nested_alu nested_alu;
+  
+  const X3 = d3;
+  const X5 = d5;
+  const X7 = d7;
+
+  always {
+    nested_alu.a = regfile.radata;
+    nested_alu.b = regfile.rbdata;
+    nested_alu.alufn = mainFSM.alufn;
+    nested_alu.bsel = mainFSM.bsel;
+    mainFSM.aluout = nested_alu.alu;
+    
+    regfile.ra = mainFSM.ra;
+    regfile.rb = mainFSM.rb;
+    regfile.write_address = mainFSM.r;
+    regfile.rdata = mainFSM.rdata;
+    regfile.werf = mainFSM.werf;
+    mainFSM.regx = regfile.x;
+    
+    timer.start_stop = mainFSM.startstoptimer;
+    mainFSM.timeup = timer.over;
+    mainFSM.p1r = p1r;
+    mainFSM.p1s = p1s;
+    mainFSM.p2r = p2r;
+    mainFSM.p2s = p2s;
+    mainFSM.x = X7;
+    
+    win = mainFSM.win;
+    dec_counter_inc = mainFSM.dec_counter_inc;
+    dec_counter_rst = mainFSM.dec_counter_rst;
+    time = timer.value;
+    
+  }
+}
