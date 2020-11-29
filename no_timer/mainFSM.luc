@@ -25,11 +25,12 @@ module mainFSM (
     fsm main = {SELECTX, RUNCHECKER1, RUNCHECKER2, PLAYER1LOSE, PLAYER2LOSE, PLAYER1TURN, PLAYER2TURN, ADDP1, ADDP2};
     checker checker;
     dff storeZ[1];
-    // TODO: timing out
+    //threesecondtimer timer;
   }  
 
   always {
     // default values
+    //timer.start_stop = 0;
     storeZ.d = storeZ.q;
     checker.aluout = 0;
     checker.start = 0;
@@ -105,6 +106,8 @@ module mainFSM (
           } else {
             main.d = main.PLAYER1LOSE;
           }
+        } else if (p1r == 0 && p1s == 0) {
+          main.d = main.PLAYER1TURN;
         } else {
           main.d = main.PLAYER1LOSE;
         }
@@ -122,9 +125,11 @@ module mainFSM (
           } else {
             main.d = main.PLAYER2LOSE;
           }
+        } else if (p2r == 0 && p2s == 0) {
+          main.d = main.PLAYER2TURN;
         } else {
           main.d = main.PLAYER2LOSE;
-        }        
+        }       
         
       main.ADDP1:
         ra = 0;
