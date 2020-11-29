@@ -14,7 +14,7 @@ module regfile (
   ) {
   
   .clk(clk), .rst(rst) {
-    dff storeA[16];
+    dff storeA[16](#INIT(1));
     dff storex[16];
     dff storeC[16];
     dff storeB[16];
