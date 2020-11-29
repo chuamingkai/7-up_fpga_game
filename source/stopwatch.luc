@@ -39,6 +39,7 @@ module stopwatch (
 
  if (start_stopb) // if start_stop pressed
  ctr.d = 0; // switch to PAUSED state
+ tenth_ctr.d=0 //restart the background
  state.d=state.RUNNINGA
  
  
@@ -54,6 +55,7 @@ module stopwatch (
 
  if (start_stopa) // if start_stop pressed
  ctr.d = 0; // switch to PAUSED state
+ tenth_ctr.d=0 //restart the background
  state.d=state.RUNNINGB
 
  //state.PAUSED: // PAUSED: maintain count but do nothing
