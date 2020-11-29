@@ -1,21 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="7-up_fpga_game" board="Alchitry Au" language="Lucid" version="3">
   <files>
+    <src>mainFSM.luc</src>
+    <src>sixteen_bit_adder.luc</src>
+    <src>modulo.luc</src>
+    <src>multi_dec_ctr.luc</src>
+    <src>boolean_unit.luc</src>
+    <component>button_conditioner.luc</component>
+    <src>shifter.luc</src>
+    <src>seven_seg.luc</src>
+    <component>counter.luc</component>
+    <src>nested_alu.luc</src>
     <component>reset_conditioner.luc</component>
+    <component>edge_detector.luc</component>
+    <src>tester.luc</src>
+    <src>threesecondtimer.luc</src>
+    <component>decoder.luc</component>
+    <src>decimal_counter.luc</src>
+    <src>sixteen_bit_alu.luc</src>
+    <src>main.luc</src>
+    <src>compare.luc</src>
+    <component>pipeline.luc</component>
+    <src>multi_seven_seg.luc</src>
+    <src>au_top_notimer.luc</src>
     <src>checker.luc</src>
     <src>regfile.luc</src>
-    <src>tester.luc</src>
-    <src>compare.luc</src>
-    <src>shifter.luc</src>
-    <src>modulo.luc</src>
-    <component>edge_detector.luc</component>
-    <src>boolean_unit.luc</src>
-    <component>counter.luc</component>
-    <src>sixteen_bit_alu.luc</src>
-    <src>sixteen_bit_adder.luc</src>
-    <src>au_top_testchecker.luc</src>
+    <constraint lib="true">io.acf</constraint>
     <constraint lib="true">alchitry.acf</constraint>
     <constraint lib="true">au.xdc</constraint>
-    <constraint lib="true">io.acf</constraint>
   </files>
 </project>
