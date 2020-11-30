@@ -7,8 +7,9 @@ module tester (
   .clk(clk), .rst(rst) {
       checker checker;
       regfile regfile;
-      fsm tester = {LD373, TEST1, LD375, TEST2, LD377, TEST3, LD753, TEST4, LD755, TEST5, LD757, TEST6, LD533, TEST7, LD535, TEST8, LD537, TEST9, LDM73, TEST10, LDM75, TEST11, LDM77, TEST12, LDM353, TEST13, LDM355, TEST14, LDM357, TEST15, DONE};
+      fsm tester = {LD373, TEST1, LD375, TEST2, LD377, TEST3, LD753, TEST4, LD755, TEST5, LD757, TEST6, LD533, TEST7, LD535, TEST8, LD537, TEST9, LDM73, TEST10, LDM75, TEST11, LDM77, TEST12, LDM353, TEST13, LDM355, TEST14, LDM357, TEST15, DONE, ERROR};
       dff counter[3];
+      dff errorstore[8];
     }
   sixteen_bit_alu sixteen_bit_alu;
   const A37 = d37; // contains 3 and 7
@@ -21,6 +22,7 @@ module tester (
   const X5 = d5;
   
   always {
+    errorstore.d = errorstore.q;
     error = 0;
     cmplt = 0;
     counter.d = counter.q + 1;
@@ -44,7 +46,7 @@ module tester (
     
     case (tester.q) {
       tester.LD373:
-        if (counter.q[0] == 0) {
+        if (counter.q[1] == 0) {
           regfile.werf = 1;
           regfile.write_address = b0000;
           regfile.rdata = A37;
@@ -63,14 +65,14 @@ module tester (
             tester.d = tester.LD375;
             counter.d = 0; //reset counting
           } else {
-            error = d1;
-            cmplt = 1;
+            errorstore.d = d1;
+            tester.d = tester.ERROR;
           } 
         } 
 
 
       tester.LD375:
-        if (counter.q[0] == 0) {
+        if (counter.q[1] == 0) {
           regfile.werf = 1;
           regfile.write_address = b0000;
           regfile.rdata = A37;
@@ -89,14 +91,14 @@ module tester (
             tester.d = tester.LD377;
             counter.d = 0; //reset counting
           } else {
-            error = d2;
-            cmplt = 1;
+            errorstore.d = d2;
+            tester.d = tester.ERROR;
           } 
         } 
 
 
       tester.LD377:
-        if (counter.q[0] == 0) {
+        if (counter.q[1] == 0) {
           regfile.werf = 1;
           regfile.write_address = b0000;
           regfile.rdata = A37;
@@ -115,14 +117,14 @@ module tester (
             tester.d = tester.LD753;
             counter.d = 0; //reset counting
           } else {
-            error = d3;
-            cmplt = 1;
+            errorstore.d = d3;
+            tester.d = tester.ERROR;
           } 
         } 
 
 
       tester.LD753:
-        if (counter.q[0] == 0) {
+        if (counter.q[1] == 0) {
           regfile.werf = 1;
           regfile.write_address = b0000;
           regfile.rdata = A75;
@@ -141,14 +143,14 @@ module tester (
             tester.d = tester.LD755;
             counter.d = 0; //reset counting
           } else {
-            error = d4;
-            cmplt = 1;
+            errorstore.d = d4;
+            tester.d = tester.ERROR;
           } 
         } 
 
 
       tester.LD755:
-        if (counter.q[0] == 0) {
+        if (counter.q[1] == 0) {
           regfile.werf = 1;
           regfile.write_address = b0000;
           regfile.rdata = A75;
@@ -167,14 +169,14 @@ module tester (
             tester.d = tester.LD757;
             counter.d = 0; //reset counting
           } else {
-            error = d5;
-            cmplt = 1;
+            errorstore.d = d5;
+            tester.d = tester.ERROR;
           } 
         } 
 
 
       tester.LD757:
-        if (counter.q[0] == 0) {
+        if (counter.q[1] == 0) {
           regfile.werf = 1;
           regfile.write_address = b0000;
           regfile.rdata = A75;
@@ -193,14 +195,14 @@ module tester (
             tester.d = tester.LD533;
             counter.d = 0; //reset counting
           } else {
-            error = d6;
-            cmplt = 1;
+            errorstore.d = d6;
+            tester.d = tester.ERROR;
           } 
         } 
 
 
       tester.LD533:
-        if (counter.q[0] == 0) {
+        if (counter.q[1] == 0) {
           regfile.werf = 1;
           regfile.write_address = b0000;
           regfile.rdata = A53;
@@ -219,14 +221,14 @@ module tester (
             tester.d = tester.LD535;
             counter.d = 0; //reset counting
           } else {
-            error = d7;
-            cmplt = 1;
+            errorstore.d = d7;
+            tester.d = tester.ERROR;
           } 
         } 
 
 
       tester.LD535:
-        if (counter.q[0] == 0) {
+        if (counter.q[1] == 0) {
           regfile.werf = 1;
           regfile.write_address = b0000;
           regfile.rdata = A53;
@@ -245,14 +247,14 @@ module tester (
             tester.d = tester.LD537;
             counter.d = 0; //reset counting
           } else {
-            error = d8;
-            cmplt = 1;
+            errorstore.d = d8;
+            tester.d = tester.ERROR;
           } 
         } 
 
 
       tester.LD537:
-        if (counter.q[0] == 0) {
+        if (counter.q[1] == 0) {
           regfile.werf = 1;
           regfile.write_address = b0000;
           regfile.rdata = A53;
@@ -271,14 +273,14 @@ module tester (
             tester.d = tester.LDM73;
             counter.d = 0; //reset counting
           } else {
-            error = d9;
-            cmplt = 1;
+            errorstore.d = d9;
+            tester.d = tester.ERROR;
           } 
         } 
 
 
       tester.LDM73:
-        if (counter.q[0] == 0) {
+        if (counter.q[1] == 0) {
           regfile.werf = 1;
           regfile.write_address = b0000;
           regfile.rdata = AMULT7;
@@ -297,14 +299,14 @@ module tester (
             tester.d = tester.LDM75;
             counter.d = 0; //reset counting
           } else {
-            error = d10;
-            cmplt = 1;
+            errorstore.d = d10;
+            tester.d = tester.ERROR;
           } 
         } 
 
 
       tester.LDM75:
-        if (counter.q[0] == 0) {
+        if (counter.q[1] == 0) {
           regfile.werf = 1;
           regfile.write_address = b0000;
           regfile.rdata = AMULT7;
@@ -323,14 +325,14 @@ module tester (
             tester.d = tester.LDM77;
             counter.d = 0; //reset counting
           } else {
-            error = d11;
-            cmplt = 1;
+            errorstore.d = d11;
+            tester.d = tester.ERROR;
           } 
         } 
 
 
       tester.LDM77:
-        if (counter.q[0] == 0) {
+        if (counter.q[1] == 0) {
           regfile.werf = 1;
           regfile.write_address = b0000;
           regfile.rdata = AMULT7;
@@ -349,14 +351,14 @@ module tester (
             tester.d = tester.LDM353;
             counter.d = 0; //reset counting
           } else {
-            error = d12;
-            cmplt = 1;
+            errorstore.d = d12;
+            tester.d = tester.ERROR;
           } 
         } 
 
 
       tester.LDM353:
-        if (counter.q[0] == 0) {
+        if (counter.q[1] == 0) {
           regfile.werf = 1;
           regfile.write_address = b0000;
           regfile.rdata = AMUL35;
@@ -375,14 +377,14 @@ module tester (
             tester.d = tester.LDM355;
             counter.d = 0; //reset counting
           } else {
-            error = d13;
-            cmplt = 1;
+            errorstore.d = d13;
+            tester.d = tester.ERROR;
           } 
         } 
 
 
       tester.LDM355:
-        if (counter.q[0] == 0) {
+        if (counter.q[1] == 0) {
           regfile.werf = 1;
           regfile.write_address = b0000;
           regfile.rdata = AMUL35;
@@ -401,14 +403,14 @@ module tester (
             tester.d = tester.LDM357;
             counter.d = 0; //reset counting
           } else {
-            error = d14;
-            cmplt = 1;
+            errorstore.d = d14;
+            tester.d = tester.ERROR;
           } 
         } 
 
 
       tester.LDM357:
-        if (counter.q[0] == 0) {
+        if (counter.q[1] == 0) {
           regfile.werf = 1;
           regfile.write_address = b0000;
           regfile.rdata = AMUL35;
@@ -427,14 +429,18 @@ module tester (
             tester.d = tester.DONE;
             counter.d = 0; //reset counting
           } else {
-            error = d15;
-            cmplt = 1;
+            errorstore.d = d15;
+            tester.d = tester.ERROR;
           } 
         } 
         
       tester.DONE:
         cmplt = 1;
         error = 0;
+        
+      tester.ERROR:
+        cmplt = 1;
+        error = errorstore.q;
       
     }
       
