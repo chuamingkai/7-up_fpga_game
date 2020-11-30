@@ -1,0 +1,45 @@
+module digitalInput (
+    input clk,  // clock
+    input rst,  // reset
+    input nums[4],
+    output lines[7]
+  ) {
+ 
+  always {
+    lines = b0000000;
+    case (nums[3:0]) {
+      b0000:
+        //number 0
+        lines = b1111110;
+      b0001:
+        //number 1
+        lines = b0110000;
+      b0010:
+        //number 2
+        lines = 11011101;
+      b0011:
+        //number 3
+        lines = b1111001;
+      b0100:
+        //number 4
+        lines = b0110011;
+      b0101:
+        //number 5
+        lines = b1011011;
+      b0110:
+        //number 6
+        lines = b1011111;
+      b0111:
+        //number 7
+        lines = b1110000;
+      b1000:
+        //number 8
+        lines = b1111111;
+      b1001:
+        //number 9
+        lines = b1111011;  
+    }
+    
+  }
+  
+}
