@@ -1,0 +1,160 @@
+module checker (
+    input clk,  // clock
+    input rst,  // reset
+    input aluout[16], // output from aluout
+    input start, // start signal
+    input x[16],
+    output aluval[16],
+    output y[3],
+    output ra[4],
+    output rb[4], 
+    output bsel[2],
+    output alufn[6],
+    output werf,
+    output r[4], // register to write data to
+    output rdata[16], // data to write to register
+    //output z, // indicate if number if special
+    output cmplt[2] // indicate if fsm complete
+  ) {
+  
+  .clk(clk), .rst(rst) {
+    fsm checker = {BEGIN, MODX, CHKLESS, MOD10, SUB, MODF};
+    dff counter[5];
+    //dff zind[1];
+    dff cmpltind[2];
+  }
+
+  always {
+    counter.d = counter.q + 1;
+    cmplt = cmpltind.q;
+    //z = zind.q;
+    rdata = 0;
+    r = 0;
+    werf = 0;
+    alufn = 0;
+    ra = 0;
+    rb = 0;
+    bsel = 0;
+    y = 0;
+    aluval = aluout;
+    
+    case (checker.q) {
+      checker.BEGIN:
+        y = 1;
+        if (counter.q[1] == 1) {
+        if (start == 1) {
+          checker.d = checker.MODX;
+            counter.d = 0;
+        }
+        }
+        
+        
+      checker.MODX:
+      y = 2;
+        ra = 0;
+        rb = 1;
+        bsel = 0;
+        alufn = b000111;
+        werf = 0;
+        r = 0;
+        rdata = 0;
+        if (counter.q[4] == 1) {
+        if (aluout == 0) {
+          //zind.d = 1;
+          cmpltind.d = d2;
+          checker.d = checker.BEGIN;
+            counter.d = 0;
+        } else {
+          cmpltind.d = 0;
+          checker.d = checker.CHKLESS;
+            counter.d = 0;
+        }
+        }
+        
+        
+        
+      checker.CHKLESS:
+      y = 3;
+        ra = 0;
+        rb = 0;
+        bsel = 1;
+        alufn = b110111;
+        werf = 0;
+        r = 0;
+        rdata = 0;
+        if (counter.q[4] == 1) {
+        if (aluout == 0) {
+          cmpltind.d = 0;
+          checker.d = checker.MOD10;
+            counter.d = 0;
+        } else {
+        //zind.d = 0;
+          cmpltind.d = d1;
+          checker.d = checker.BEGIN;
+            counter.d = 0;
+        }
+        }
+        
+      checker.MOD10:
+      y = 4;
+        ra = 0;
+        rb = 0;
+        bsel = 1;
+        alufn = b000111;
+        if (counter.q[4] == 1) {
+        if (aluout == x) {
+          werf = 0;
+          r = 0;
+          rdata = 0;
+          //zind.d = 1;
+          cmpltind.d = d2;
+          checker.d = checker.BEGIN;
+            counter.d = 0;
+        } else {
+          werf = 1;
+          r = 2;
+          rdata = aluout;
+          cmpltind.d = 0;
+          checker.d = checker.SUB;
+            counter.d = 0;
+        
+        }
+        }
+      checker.SUB:
+      y = 5;
+        ra = 0;
+        rb = 2;
+        bsel = 0;
+        alufn = b000001;
+        werf = 1;
+        r = 3;
+        if (counter.q[4] == 1) {
+        rdata = aluout;
+        checker.d = checker.MODF;
+          counter.d = 0;
+        }
+        
+          
+        
+      checker.MODF:
+      y = 6;
+        ra = 3;
+        rb = 1;
+        bsel = 0;
+        alufn = b000111;
+        if (counter.q[4] == 1) {
+        if (aluout == 0) {
+          //zind.d = 1;
+          cmpltind.d = d2;
+            counter.d = 0;
+          checker.d = checker.BEGIN;
+        } else {
+          //zind.d = 0;
+            counter.d = 0;
+          cmpltind.d = d1;
+          checker.d = checker.BEGIN;
+        
+        }}
+    }  
+  }
+}
