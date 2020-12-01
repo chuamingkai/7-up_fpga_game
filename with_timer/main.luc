@@ -6,10 +6,12 @@ module main (
     input p1s,  // player 1 special button
     input p2s,  // player 2 special button
     input xchoice[3],
+    output a[16],
     output win[2],
     output time[2],
     output dec_counter_inc,
-    output dec_counter_rst
+    output dec_counter_rst,
+    output seven_seg_sel
   ) {
   
   .clk(clk), .rst(rst) {
@@ -36,6 +38,13 @@ module main (
     regfile.rdata = mainFSM.rdata;
     regfile.werf = mainFSM.werf;
     mainFSM.regx = regfile.x;
+    mainFSM.regA = regfile.a;
+    case(xchoice) {
+      b001: mainFSM.x = X3;
+      b010: mainFSM.x = X5;
+      b100: mainFSM.x = X7;
+      default: mainFSM.x = 16b0;
+    }
     
     timer.start_stop = mainFSM.startstoptimer;
     mainFSM.timeup = timer.over;
@@ -43,11 +52,12 @@ module main (
     mainFSM.p1s = p1s;
     mainFSM.p2r = p2r;
     mainFSM.p2s = p2s;
-    mainFSM.x = X7;
     
+    seven_seg_sel = mainFSM.seven_seg_sel;    
     win = mainFSM.win;
     dec_counter_inc = mainFSM.dec_counter_inc;
     dec_counter_rst = mainFSM.dec_counter_rst;
+    a = regfile.a;
     time = timer.value;
     
   }
