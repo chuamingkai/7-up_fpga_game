@@ -25,6 +25,7 @@ module au_top_testchecker (
     .rst(rst) {
       main main;
       multi_seven_seg seg(#DIGITS(3));
+      multi_seven_seg seg_err(#DIGITS(3));
     }
     button_conditioner p1rcond(.in(io_button[0])); // up
     button_conditioner p1scond(.in(io_button[4])); // right
@@ -38,6 +39,10 @@ module au_top_testchecker (
     
     multi_dec_ctr dec_ctr(#DIGITS(3));
   }
+  
+  const ERR0 = d11;
+  const ERR1 = d11;
+  const ERR2 = d10;
   
   always {
     reset_cond.in = ~rst_n; // input raw inverted reset signal
@@ -55,12 +60,21 @@ module au_top_testchecker (
     main.p1s = p1s.out;
     main.p2r = p2r.out;
     main.p2s = p2s.out;
-    main.xchoice = io_dip[0][2:0]; // this doesnt do anything yet
+    main.xchoice = io_dip[0][2:0];
     
     io_led[0][1:0] = main.win;
     dec_ctr.inc = main.dec_counter_inc;
     dec_ctr.rst = main.dec_counter_rst;
     seg.values = dec_ctr.digits;
+    
+    seg_err.values[2] = ERR2;
+    seg_err.values[1] = ERR1;
+    seg_err.values[0] = ERR0;
+    
+    if (main.seven_seg_sel == 1) {
+      io_seg = ~seg_err.seg;
+      io_sel = ~seg_err.sel;
+    }
     io_seg = ~seg.seg;
     io_sel = ~seg.sel;
     
