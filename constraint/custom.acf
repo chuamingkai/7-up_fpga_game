@@ -1,0 +1,50 @@
+pin clk CLOCK;
+clock clk 100MHz;
+
+pin rst_n RESET;
+
+pin led[0] LED0;
+pin led[1] LED1;
+pin led[2] LED2;
+pin led[3] LED3;
+pin led[4] LED4;
+pin led[5] LED5;
+pin led[6] LED6;
+pin led[7] LED7;
+
+// flip the Tx/Rx lines
+pin usb_rx USB_TX;
+pin usb_tx USB_RX;
+
+pin p1r C49 pulldown;
+pin p1s C46 pulldown;
+pin p2r C48 pulldown;
+pin p2s C45 pulldown;
+
+pin mode[0] C20 pulldown;
+pin mode[1] C17 pulldown;
+pin mode[2] C14 pulldown;
+
+pin left_seg[6] B30 pullup;
+pin left_seg[5] B33 pullup;
+pin left_seg[4] B36 pullup;
+pin left_seg[3] B39 pullup;
+pin left_seg[2] B42 pullup;
+pin left_seg[1] B45 pullup;
+pin left_seg[0] B48 pullup;
+
+pin middle_seg[6] B31 pullup;
+pin middle_seg[5] B34 pullup;
+pin middle_seg[4] B37 pullup;
+pin middle_seg[3] B40 pullup;
+pin middle_seg[2] B43 pullup;
+pin middle_seg[1] B46 pullup;
+pin middle_seg[0] B49 pullup;
+
+pin right_seg[6] B21 pullup;
+pin right_seg[5] B18 pullup;
+pin right_seg[4] B15 pullup;
+pin right_seg[3] B12 pullup;
+pin right_seg[2] B9 pullup;
+pin right_seg[1] B6 pullup;
+pin right_seg[0] B3 pullup;
