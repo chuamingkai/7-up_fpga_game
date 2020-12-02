@@ -68,7 +68,7 @@ module au_top (
     io_led[0][1:0] = main.win;
     
     io_seg = ~seg_A.seg;
-    io_sel = seg_A.sel;
+    io_sel = ~seg_A.sel;
     
     if (main.seven_seg_sel == 1) {
       io_seg = ~seg_Err.seg;
