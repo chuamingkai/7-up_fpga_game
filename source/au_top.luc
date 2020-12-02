@@ -8,12 +8,10 @@ module au_top (
     input p1s, // p1 special
     input p2r, // p2 regular
     input p2s, // p2 special
-    input mode[3], // mode switches
-    output left_seg[7], // left seg
-    output middle_seg[7], // middle seg
-    output right_seg[7], // right seg
-    output win_led_2,
-    output win_led_1
+    output io_led [3][8],   // LEDs on IO Shield
+    output io_seg [8],      // 7-segment LEDs on IO Shield
+    output io_sel [4],      // Digit select on IO Shield
+    input io_dip [3][8]     // DIP switches on IO Shield
   ) {
   
   sig rst;                  // reset signal
@@ -23,6 +21,8 @@ module au_top (
     reset_conditioner reset_cond;
     .rst(rst) {
       main main;
+      multi_seven_seg seg_A(#DIGITS(3));
+      multi_seven_seg seg_Err(#DIGITS(3));
     }
     button_conditioner p1rcond(.in(p1r));
     button_conditioner p1scond(.in(p1s)); 
@@ -36,9 +36,8 @@ module au_top (
     
     multi_dec_ctr dec_ctr(#DIGITS(3));
     
+    
   }
-  multi_seven_seg_indiv seg_A;
-  multi_seven_seg_indiv seg_Err;
   
   const ERR0 = d11;
   const ERR1 = d11;
@@ -56,7 +55,7 @@ module au_top (
     main.p1s = p1sdec.out;
     main.p2r = p2rdec.out;
     main.p2s = p2sdec.out;
-    main.xchoice = mode;
+    main.xchoice = io_dip[2][2:0];
     
     dec_ctr.inc = main.dec_counter_inc;
     dec_ctr.rst = main.dec_counter_rst;
@@ -66,17 +65,14 @@ module au_top (
     seg_Err.values[1] = ERR1;
     seg_Err.values[0] = ERR0;
     
-    right_seg = ~seg_A.seg1;
-    middle_seg = ~seg_A.seg2;
-    left_seg = ~seg_A.seg3;
+    io_led[0][1:0] = main.win;
     
-    win_led_2 = main.win[1];
-    win_led_1 = main.win[0];
+    io_seg = ~seg_A.seg;
+    io_sel = seg_A.sel;
     
     if (main.seven_seg_sel == 1) {
-      right_seg = ~seg_Err.seg1;
-      middle_seg = ~seg_Err.seg2;
-      left_seg = ~seg_Err.seg3;
+      io_seg = ~seg_Err.seg;
+      io_sel = ~seg_Err.sel;
     }
 
     
