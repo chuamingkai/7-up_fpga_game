@@ -1,0 +1,23 @@
+module shifter (
+    input a[16],  // 16 bit a input
+    input b[16],  // 16 bit b input
+    input alufn[6], // 6 bit alufn signal, alufn[1:0] indicates the kind of shifting
+    output shift[16]
+  ) {
+
+  always {
+    shift = 16b0;
+    case (alufn[1:0]) {
+      b00:
+        // shift left
+        shift = a << b[3:0];
+      b01:
+        // shift right
+        shift = a >> b[3:0];
+      b11:
+        // shift right extension
+        shift = $signed(a) >>> b[3:0];
+        
+    }
+  }
+}

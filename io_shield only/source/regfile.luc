@@ -1,0 +1,59 @@
+module regfile (
+    input clk,  // clock
+    input rst,  // reset
+    input write_address[4], // write address
+    input werf,
+    input rdata[16],
+    input ra[4], // read address ra
+    input rb[4], // read address rb
+    
+    output radata[16],
+    output rbdata[16],
+    output a[16],
+    output x[16]
+  ) {
+  
+  .clk(clk), .rst(rst) {
+    dff storeA[16];
+    dff storex[16];
+    dff storeC[16];
+    dff storeB[16];
+    dff storeD[16]; // debugging
+  }
+  
+  always {
+    //default values
+    radata = 0;
+    rbdata = 0;
+    
+    
+    if (werf) {
+      case (write_address) {
+        b0000: storeA.d = rdata;
+        b0001: storex.d = rdata;
+        b0010: storeC.d = rdata;
+        b0011: storeB.d = rdata;
+        b0100: storeD.d = rdata; // debugging
+      }
+    }
+    
+    case (ra) {
+      b0000: radata = storeA.q;
+      b0001: radata = storex.q;
+      b0010: radata = storeC.q;
+      b0011: radata = storeB.q;
+      b0100: radata = storeD.q; // debugging    
+    }
+    
+    case (rb) {
+      b0000: rbdata = storeA.q;
+      b0001: rbdata = storex.q;
+      b0010: rbdata = storeC.q;
+      b0011: rbdata = storeB.q;
+      b0100: rbdata = storeD.q; // debugging
+    }
+    
+    a = storeA.q;
+    x = storex.q;
+  }
+}

@@ -1,0 +1,68 @@
+module main (
+    input clk,  // clock
+    input rst,  // reset
+    input p1r,  // player 1 regular button
+    input p2r,  // player 2 regular button
+    input p1s,  // player 1 special button
+    input p2s,  // player 2 special button
+    input xchoice[3],
+    output a[16],
+    output x[3],
+    output win[2],
+    output dec_counter_inc,
+    output dec_counter_rst,
+    output seven_seg_sel,
+    
+    //debugging
+    output cmplt[2],
+    output y[3]
+  ) {
+  
+  .clk(clk), .rst(rst) {
+    regfile regfile;
+    mainFSM mainFSM;
+  }
+  nested_alu nested_alu;
+  
+  const X3 = d3;
+  const X5 = d5;
+  const X7 = d7;
+
+  always {
+    nested_alu.a = regfile.radata;
+    nested_alu.b = regfile.rbdata;
+    nested_alu.alufn = mainFSM.alufn;
+    nested_alu.bsel = mainFSM.bsel;
+    mainFSM.aluout = nested_alu.alu;
+    
+    regfile.ra = mainFSM.ra;
+    regfile.rb = mainFSM.rb;
+    regfile.write_address = mainFSM.r;
+    regfile.rdata = mainFSM.rdata;
+    regfile.werf = mainFSM.werf;
+    mainFSM.regx = regfile.x;
+    mainFSM.regA = regfile.a;
+    case(xchoice) {
+      b001: mainFSM.x = X3;
+      b010: mainFSM.x = X5;
+      b100: mainFSM.x = X7;
+      default: mainFSM.x = 16b0;
+    }
+    
+    mainFSM.p1r = p1r;
+    mainFSM.p1s = p1s;
+    mainFSM.p2r = p2r;
+    mainFSM.p2s = p2s;
+    
+    seven_seg_sel = mainFSM.seven_seg_sel;    
+    win = mainFSM.win;
+    dec_counter_inc = mainFSM.dec_counter_inc;
+    dec_counter_rst = mainFSM.dec_counter_rst;
+    a = regfile.a;
+    x = regfile.x;
+    y = mainFSM.y;
+    cmplt = mainFSM.cmplt;
+    
+    
+  }
+}

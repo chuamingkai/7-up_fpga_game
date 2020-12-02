@@ -1,0 +1,406 @@
+module mainFSM (
+    input clk,  // clock
+    input rst,  // reset
+    input p1r,  // player 1 regular button
+    input p2r,  // player 2 regular button
+    input p1s,  // player 1 special button
+    input p2s,  // player 2 special button
+    input x[16],
+    input regx[16],
+    input regA[16],
+    input aluout[16], // output from alu
+    output win[2], // 00 indicates game ongoing, 01 indicates player 1, 10 indicates player 2, 11 is tie
+    output seven_seg_sel,
+    output alufn[6],
+    output ra[4],
+    output rb[4], 
+    output bsel[3],
+    output rdata[16],
+    output r[4],
+    output werf,
+    output dec_counter_inc,
+    output dec_counter_rst,
+    
+    // debugging
+    output cmplt[2],
+    output y[3]
+  ) {
+  
+  .clk(clk), .rst(rst) {
+    fsm main = {SELECTX, INPUTERR, PLAYER1LOSE, PLAYER2LOSE, PLAYER1TURN, PLAYER2TURN, ADDP1, ADDP2, TIE,
+      CHKMODX1, CHKCHKLESS1, CHKMOD101, CHKSUB1, CHKCHECKF1, CHKMODX2, CHKCHKLESS2, CHKMOD102, CHKSUB2, CHKCHECKF2};
+    dff counter[5];
+    dff err_wait[27];
+    dff cmpltind[2];
+    //threesecondtimer timer;
+  }  
+
+  always {
+    // default values
+    //timer.start_stop = 0;
+    cmplt = cmpltind.q;
+    counter.d = 0;
+    y = 0;
+    win = 0;
+    seven_seg_sel = 0;
+    ra = 0;
+    rb = 0;
+    bsel = 0;
+    rdata = 0;
+    r = 0;
+    werf = 0;
+    alufn = b000000;
+    dec_counter_inc = 0;
+    dec_counter_rst = 0;
+    
+    case (main.q) {
+      main.SELECTX:
+        if (x == 0) {
+          main.d = main.INPUTERR;
+        } else {
+        if (p1r == 1 && p2r == 0) {
+          rdata = x;
+          r = 1;
+          werf = 1;
+          dec_counter_rst = 1;
+          cmpltind.d = 1;
+          main.d = main.PLAYER1TURN;
+        } else if (p1r == 0 && p2r == 1) {
+          rdata = x;
+          r = 1;
+          werf = 1;
+          cmpltind.d = 1;
+          dec_counter_rst = 1;
+          main.d = main.PLAYER2TURN;
+        }}
+          
+      main.INPUTERR:
+        seven_seg_sel = 1;
+        err_wait.d = err_wait.q + 1;
+        if (err_wait.q[26] == 1) {
+          main.d = main.SELECTX;
+          err_wait.d = 0;
+        }
+        
+        
+      main.CHKMODX1:
+      y = 2;
+        ra = 0;
+        rb = 1;
+        bsel = 0;
+        alufn = b000111;
+        werf = 0;
+        r = 0;
+        rdata = 0;
+        counter.d = counter.q + 1;
+        if (counter.q[4] == 1) {
+          if (aluout == 0) {
+            cmpltind.d = d2;
+            main.d = main.PLAYER1TURN;
+              counter.d = 0;
+          } else {
+            cmpltind.d = 0;
+            main.d = main.CHKCHKLESS1;
+              counter.d = 0;
+          }
+        }
+        
+      main.CHKCHKLESS1:
+      y = 3;
+        ra = 0;
+        rb = 0;
+        bsel = 1;
+        alufn = b110111;
+        werf = 0;
+        r = 0;
+        rdata = 0;
+        counter.d = counter.q + 1;
+        if (counter.q[4] == 1) {
+          if (aluout == 0) {
+            cmpltind.d = 0;
+            main.d = main.CHKMOD101;
+            counter.d = 0;
+          } else {
+            cmpltind.d = d1;
+            main.d = main.PLAYER1TURN;
+            counter.d = 0;
+          }
+        }
+        
+      main.CHKMOD101:
+      y = 4;
+        ra = 0;
+        rb = 0;
+        bsel = 1;
+        alufn = b000111;
+        counter.d = counter.q + 1;
+        if (counter.q[4] == 1) {
+          if (aluout == regx) {
+            werf = 0;
+            r = 0;
+            rdata = 0;
+            cmpltind.d = d2;
+            main.d = main.PLAYER1TURN;
+            counter.d = 0;
+          } else {
+            werf = 1;
+            r = 2;
+            rdata = aluout;
+            cmpltind.d = 0;
+            main.d = main.CHKSUB1;
+            counter.d = 0;
+          }
+        }
+          
+      main.CHKSUB1:
+      y = 5;
+        ra = 0;
+        rb = 2;
+        bsel = 0;
+        alufn = b000001;
+        werf = 1;
+        r = 3;
+        counter.d = counter.q + 1;
+        if (counter.q[4] == 1) {
+          cmplt = 0;
+          rdata = aluout;
+          main.d = main.CHKCHECKF1;
+          counter.d = 0;
+        }
+
+      main.CHKCHECKF1:
+      y = 6;
+        ra = 3;
+        rb = 0;
+        bsel = 3;
+        case (regx) {
+            d3: bsel = 3;
+            d5: bsel = 4;
+            d7: bsel = 5;
+        }
+        alufn = b110011;
+        counter.d = counter.q + 1;        
+        if (counter.q[4] == 1) {
+          if (aluout == 1) {
+            cmpltind.d = 2;
+            counter.d = 0;
+            main.d = main.PLAYER1TURN;
+          } else {
+            cmpltind.d = 1;
+            counter.d = 0;
+            main.d = main.PLAYER1TURN;
+          }
+        }
+        
+        
+      main.CHKMODX2:
+      y = 2;
+        ra = 0;
+        rb = 1;
+        bsel = 0;
+        alufn = b000111;
+        werf = 0;
+        r = 0;
+        rdata = 0;
+        counter.d = counter.q + 1;
+        if (counter.q[4] == 1) {
+          if (aluout == 0) {
+            cmpltind.d = d2;
+            main.d = main.PLAYER2TURN;
+              counter.d = 0;
+          } else {
+            cmpltind.d = 0;
+            main.d = main.CHKCHKLESS2;
+              counter.d = 0;
+          }
+        }
+        
+      main.CHKCHKLESS2:
+      y = 3;
+        ra = 0;
+        rb = 0;
+        bsel = 1;
+        alufn = b110111;
+        werf = 0;
+        r = 0;
+        rdata = 0;
+        counter.d = counter.q + 1;
+        if (counter.q[4] == 1) {
+          if (aluout == 0) {
+            cmpltind.d = 0;
+            main.d = main.CHKMOD102;
+            counter.d = 0;
+          } else {
+            cmpltind.d = d1;
+            main.d = main.PLAYER2TURN;
+            counter.d = 0;
+          }
+        }
+        
+      main.CHKMOD102:
+      y = 4;
+        ra = 0;
+        rb = 0;
+        bsel = 1;
+        alufn = b000111;
+        counter.d = counter.q + 1;
+        if (counter.q[4] == 1) {
+          if (aluout == regx) {
+            werf = 0;
+            r = 0;
+            rdata = 0;
+            cmpltind.d = d2;
+            main.d = main.PLAYER2TURN;
+            counter.d = 0;
+          } else {
+            werf = 1;
+            r = 2;
+            rdata = aluout;
+            cmpltind.d = 0;
+            main.d = main.CHKSUB2;
+            counter.d = 0;
+          }
+        }
+          
+      main.CHKSUB2:
+      y = 5;
+        ra = 0;
+        rb = 2;
+        bsel = 0;
+        alufn = b000001;
+        werf = 1;
+        r = 3;
+        counter.d = counter.q + 1;
+        if (counter.q[4] == 1) {
+          cmplt = 0;
+          rdata = aluout;
+          main.d = main.CHKCHECKF2;
+          counter.d = 0;
+        }
+
+      main.CHKCHECKF2:
+      y = 6;
+        ra = 3;
+        rb = 0;
+        bsel = 3;
+        case (regx) {
+            d3: bsel = 3;
+            d5: bsel = 4;
+            d7: bsel = 5;
+        }
+        alufn = b110011;
+        counter.d = counter.q + 1;        
+        if (counter.q[4] == 1) {
+          if (aluout == 1) {
+            cmpltind.d = 2;
+            counter.d = 0;
+            main.d = main.PLAYER2TURN;
+          } else {
+            cmpltind.d = 1;
+            counter.d = 0;
+            main.d = main.PLAYER2TURN;
+          }
+        }
+        
+        
+      main.PLAYER1TURN:
+        if (p1r == 1 && p1s == 0) {
+          if (cmpltind.q == 1) {
+            main.d = main.ADDP1;
+          } else {
+            main.d = main.PLAYER1LOSE;
+          }
+        } else if (p1r == 0 && p1s == 1) { 
+          if (cmpltind.q == 2) {
+            main.d = main.ADDP1;
+          } else {
+            main.d = main.PLAYER1LOSE;
+          }
+        } else if (p1r == 0 && p1s == 0) {
+          main.d = main.PLAYER1TURN;
+        } else {
+          main.d = main.PLAYER1LOSE;
+        }
+        
+      main.PLAYER2TURN:
+        if (p2r == 1 && p2s == 0) {
+          if (cmpltind.q == 1) {
+            main.d = main.ADDP2;
+          } else {
+            main.d = main.PLAYER2LOSE;
+          }
+        } else if (p2r == 0 && p2s == 1) { 
+          if (cmpltind.q == 2) {
+            main.d = main.ADDP2;
+          } else {
+            main.d = main.PLAYER2LOSE;
+          }
+        } else if (p2r == 0 && p2s == 0) {
+          main.d = main.PLAYER2TURN;
+        } else {
+          main.d = main.PLAYER2LOSE;
+        }       
+        
+      main.ADDP1:
+        ra = 0;
+        rb = 0;
+        bsel = 2;
+        rdata = aluout;
+        r = 0;
+        werf = 1;
+        dec_counter_inc = 1;
+        if (regA == d99) {
+          main.d = main.TIE;
+        } else {
+          main.d = main.CHKMODX2;
+        }
+        
+      main.ADDP2:
+        ra = 0;
+        rb = 0;
+        bsel = 2;
+        rdata = aluout;
+        r = 0;
+        werf = 1;
+        dec_counter_inc = 1;
+        if (regA == d99) {
+	          main.d = main.TIE;
+        } else {
+          main.d = main.CHKMODX1;
+        }
+      
+      main.PLAYER1LOSE:
+        win = 2;
+        rdata = 0;
+        r = 0;
+        werf = 1;
+        dec_counter_rst = 1;
+        if (p1r || p2r) {
+          main.d = main.SELECTX;
+        }
+        
+      main.PLAYER2LOSE:
+        win = 1;
+        rdata = 0;
+        r = 0;
+        werf = 1;
+        dec_counter_rst = 1;
+        if (p1r || p2r) {
+          main.d = main.SELECTX;
+        }
+
+      main.TIE:
+        win = b11;
+        rdata = 0;
+        r = 0;
+        werf = 1;
+        dec_counter_rst = 1;
+        if (p1r || p2r) {
+          main.d = main.SELECTX;
+        }
+      
+    }
+    
+    
+  }
+}

@@ -1,0 +1,46 @@
+module nested_alu (
+    input a[16], // 16-bit a input
+    input b[16], // 16-bit b input
+    input alufn[6], // 6 bit alufn signal
+    input bsel[3],
+    output alu[16]
+  ) {
+  sixteen_bit_alu sixteen_bit_alu;
+  
+  const TEN = d10;
+  const ONE = d1;
+  const THIRTY = d30;
+  const FIFTY = d50;
+  const SEVENTY = d70;
+  
+
+  always {
+    sixteen_bit_alu.a = a;
+    sixteen_bit_alu.alufn = alufn;
+    
+    sixteen_bit_alu.b = b;
+    case (bsel) {
+      b000: 
+        sixteen_bit_alu.b = b;
+      
+      b001: 
+        sixteen_bit_alu.b = TEN;
+        
+      b010: 
+        sixteen_bit_alu.b = ONE;
+        
+      b011: 
+        sixteen_bit_alu.b = THIRTY;
+        
+      b100:
+        sixteen_bit_alu.b = FIFTY;
+        
+      b101:
+        sixteen_bit_alu.b = SEVENTY;
+      
+        
+    }    
+    
+    alu = sixteen_bit_alu.alu;
+  }
+}

@@ -1,0 +1,49 @@
+module sixteen_bit_alu (
+    input a[16], // 16-bit a input
+    input b[16], // 16-bit b input
+    input alufn[6], // 6 bit alufn signal
+    output alu[16],
+    output z,
+    output v,
+    output n
+  ) {
+  
+  .alufn(alufn)  {
+    compare compareunit;
+    .a(a), .b(b) {
+      sixteen_bit_adder sixteenbitadder;
+      boolean_unit booleanunit;
+      shifter shifterunit;
+    }
+  }
+
+  always {
+    compareunit.z = sixteenbitadder.z;
+    compareunit.v = sixteenbitadder.v;
+    compareunit.n = sixteenbitadder.n;
+    z = sixteenbitadder.z;
+    v = sixteenbitadder.v;
+    n = sixteenbitadder.n;
+    
+    
+    alu = 16b0;
+    
+    case (alufn[5:4]) {
+      b00:
+        // perform add operation
+        alu = sixteenbitadder.sum;
+      
+      b01:
+        // perform booelan operation
+        alu = booleanunit.boolean;
+      
+      b10:
+        // perform shifting
+        alu = shifterunit.shift;
+      
+      b11:
+        // perform compare
+        alu = compareunit.comp;
+    }
+  }
+}

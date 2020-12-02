@@ -1,0 +1,31 @@
+module boolean_unit (
+    input a[16],  // 16 bit a input
+    input b[16],  // 16 bit b input
+    input alufn[6], // 6 bit alufn signal; alufn[3:0] indicates the boolean expression
+    output boolean[16]
+  ) {
+
+  always {
+    boolean = 16b0;
+    case (alufn[3:0]) {
+      b1000:
+        // and
+        boolean = a & b;
+        
+      b1110:
+        // or
+        boolean = a | b;
+        
+      b0110:
+        //xor 
+        boolean = a ^ b;
+        
+      b1010:
+        // select a
+        boolean = a;
+        
+
+    }
+      
+  }
+}

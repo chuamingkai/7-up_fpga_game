@@ -1,0 +1,83 @@
+module au_top (
+    input clk,              // 100MHz clock
+    input rst_n,            // reset button (active low)
+    output led [8],         // 8 user controllable LEDs
+    input usb_rx,           // USB->Serial input
+    output usb_tx,          // USB->Serial output
+    input p1r, // p1 regular
+    input p1s, // p1 special
+    input p2r, // p2 regular
+    input p2s, // p2 special
+    output io_led [3][8],   // LEDs on IO Shield
+    output io_seg [8],      // 7-segment LEDs on IO Shield
+    output io_sel [4],      // Digit select on IO Shield
+    input io_dip [3][8]     // DIP switches on IO Shield
+  ) {
+  
+  sig rst;                  // reset signal
+  .clk(clk) {
+    // The reset conditioner is used to synchronize the reset signal to the FPGA
+    // clock. This ensures the entire FPGA comes out of reset at the same time.
+    reset_conditioner reset_cond;
+    .rst(rst) {
+      main main;
+      multi_seven_seg seg_A(#DIGITS(3));
+      multi_seven_seg seg_Err(#DIGITS(3));
+    }
+    button_conditioner p1rcond(.in(p1r));
+    button_conditioner p1scond(.in(p1s)); 
+    button_conditioner p2rcond(.in(p2r));
+    button_conditioner p2scond(.in(p2s)); 
+    
+    edge_detector p1rdec(#RISE(1), #FALL(0), .in(p1rcond.out));
+    edge_detector p1sdec(#RISE(1), #FALL(0), .in(p1scond.out));
+    edge_detector p2rdec(#RISE(1), #FALL(0), .in(p2rcond.out));
+    edge_detector p2sdec(#RISE(1), #FALL(0), .in(p2scond.out));
+    
+    multi_dec_ctr dec_ctr(#DIGITS(3));
+    
+    
+  }
+  
+  const ERR0 = d11;
+  const ERR1 = d11;
+  const ERR2 = d10;
+  
+  always {
+    reset_cond.in = ~rst_n; // input raw inverted reset signal
+    rst = reset_cond.out;
+    
+    usb_tx = usb_rx;        // loop serial port
+     
+    led = 8h00;             // turn LEDs off
+    
+    main.p1r = p1rdec.out;
+    main.p1s = p1sdec.out;
+    main.p2r = p2rdec.out;
+    main.p2s = p2sdec.out;
+    main.xchoice = io_dip[2][2:0];
+    
+    dec_ctr.inc = main.dec_counter_inc;
+    dec_ctr.rst = main.dec_counter_rst;
+    seg_A.values = dec_ctr.digits;
+    
+    seg_Err.values[2] = ERR2;
+    seg_Err.values[1] = ERR1;
+    seg_Err.values[0] = ERR0;
+    
+    io_led[0][1:0] = main.win;
+    
+    io_seg = ~seg_A.seg;
+    io_sel = seg_A.sel;
+    
+    if (main.seven_seg_sel == 1) {
+      io_seg = ~seg_Err.seg;
+      io_sel = ~seg_Err.sel;
+    }
+
+    
+    
+    
+  }
+}
+

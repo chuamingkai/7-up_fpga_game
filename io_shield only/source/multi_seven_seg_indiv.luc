@@ -1,0 +1,20 @@
+module multi_seven_seg_indiv (
+    input values [3][4], // values to show
+    output seg1 [7],           // LED segments
+    output seg2[7],
+    output seg3[7]
+  ) { 
+  
+  seven_seg seg_dec1;
+  seven_seg seg_dec2;
+  seven_seg seg_dec3;
+  
+  always {
+    seg_dec1.char = values[0];     // select the value
+    seg_dec2.char = values[1];     // select the value
+    seg_dec3.char = values[2];     // select the value
+    seg1 = seg_dec1.segs;                   // output the decoded value
+    seg2 = seg_dec2.segs;                   // output the decoded value
+    seg3 = seg_dec3.segs;                   // output the decoded value
+  }
+}
