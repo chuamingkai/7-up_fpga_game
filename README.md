@@ -7,5 +7,5 @@ The interface of our game is thus simple, with buttons to replace the ‘clappin
 
 ## Notes
 Originally, we intended to include a timer in our game to limit the response time of the players. However, difficulties in the mainFSM and checker logic flow led us to scrap the timer due to time constraints.
-The two folders, with_timer and no_timer include outdated code.
+The folder named "io_shield only" contains the final source code. The two folders, with_timer and no_timer include outdated code.
 
