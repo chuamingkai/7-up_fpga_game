@@ -12,7 +12,8 @@ module au_top (
     output left_seg[7], // left seg
     output middle_seg[7], // middle seg
     output right_seg[7], // right seg
-    output win_led_2
+    output win_led_2,
+    output win_led_1
   ) {
   
   sig rst;                  // reset signal
@@ -70,6 +71,7 @@ module au_top (
     left_seg = ~seg_A.seg3;
     
     win_led_2 = main.win[1];
+    win_led_1 = main.win[0];
     
     if (main.seven_seg_sel == 1) {
       right_seg = ~seg_Err.seg1;
