@@ -18,7 +18,7 @@ module regfile (
     dff storex[16];
     dff storeC[16];
     dff storeB[16];
-    dff storeZ[16];
+    dff storeD[16]; // debugging
   }
   
   always {
@@ -29,31 +29,31 @@ module regfile (
     
     if (werf) {
       case (write_address) {
-        b0000: storeA.d = d35; //rdata;
-        b0001: storex.d = d3; // rdata;
+        b0000: storeA.d = rdata;
+        b0001: storex.d = rdata;
         b0010: storeC.d = rdata;
         b0011: storeB.d = rdata;
-        b0100: storeZ.d = rdata;
+        b0100: storeD.d = rdata; // debugging
       }
     }
     
     case (ra) {
-      b0000: radata = d35; //storeA.q;
-      b0001: radata = d3; //storex.q;
+      b0000: radata = storeA.q;
+      b0001: radata = storex.q;
       b0010: radata = storeC.q;
       b0011: radata = storeB.q;
-      b0100: radata = storeZ.q;      
+      b0100: radata = storeD.q; // debugging    
     }
     
     case (rb) {
-      b0000: rbdata = d35; //storeA.q;
-      b0001: rbdata = d3; //storex.q;
+      b0000: rbdata = storeA.q;
+      b0001: rbdata = storex.q;
       b0010: rbdata = storeC.q;
       b0011: rbdata = storeB.q;
-      b0100: rbdata = storeZ.q;      
+      b0100: rbdata = storeD.q; // debugging
     }
     
-    a = d35; //storeA.q;
-    x = d3; //storex.q;
+    a = storeA.q;
+    x = storex.q;
   }
 }

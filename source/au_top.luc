@@ -1,15 +1,17 @@
-// testing checker fsm
-module au_top_testchecker (
+module au_top (
     input clk,              // 100MHz clock
     input rst_n,            // reset button (active low)
     output led [8],         // 8 user controllable LEDs
     input usb_rx,           // USB->Serial input
     output usb_tx,          // USB->Serial output
-    output io_led [3][8],   // LEDs on IO Shield
-    output io_seg [8],      // 7-segment LEDs on IO Shield
-    output io_sel [4],      // Digit select on IO Shield
-    input io_button [5],    // 5 buttons on IO Shield
-    input io_dip [3][8]     // DIP switches on IO Shield
+    input p1r, // p1 regular
+    input p1s, // p1 special
+    input p2r, // p2 regular
+    input p2s, // p2 special
+    input mode[3], // mode switches
+    output left_seg[7], // left seg
+    output middle_seg[7], // middle seg
+    output right_seg[7] // right seg
   ) {
   
   sig rst;                  // reset signal
@@ -18,15 +20,27 @@ module au_top_testchecker (
     // clock. This ensures the entire FPGA comes out of reset at the same time.
     reset_conditioner reset_cond;
     .rst(rst) {
-      checker checker;
-      regfile regfile;
-      dff cmplt[2];
-      dff y[3];
-      dff aluval[16];
+      main main;
     }
+    button_conditioner p1rcond(.in(p1r));
+    button_conditioner p1scond(.in(p1s)); 
+    button_conditioner p2rcond(.in(p2r));
+    button_conditioner p2scond(.in(p2s)); 
+    
+    edge_detector p1rdec(#RISE(1), #FALL(0), .in(p1rcond.out));
+    edge_detector p1sdec(#RISE(1), #FALL(0), .in(p1scond.out));
+    edge_detector p2rdec(#RISE(1), #FALL(0), .in(p2rcond.out));
+    edge_detector p2sdec(#RISE(1), #FALL(0), .in(p2scond.out));
+    
+    multi_dec_ctr dec_ctr(#DIGITS(3));
+    
   }
-  nested_alu nested_alu;
-
+  multi_seven_seg_indiv seg_A;
+  multi_seven_seg_indiv seg_Err;
+  
+  const ERR0 = d11;
+  const ERR1 = d11;
+  const ERR2 = d10;
   
   always {
     reset_cond.in = ~rst_n; // input raw inverted reset signal
@@ -35,42 +49,34 @@ module au_top_testchecker (
     usb_tx = usb_rx;        // loop serial port
      
     led = 8h00;             // turn LEDs off
-       
-    io_seg = 8hff;          // turn segments off
-    io_sel = 4hf;
-    io_led = 3x{{8h00}};
     
-    nested_alu.a = regfile.radata;
-    nested_alu.b = regfile.rbdata;
-    nested_alu.alufn = checker.alufn;
-    nested_alu.bsel = checker.bsel;
+    main.p1r = p1rdec.out;
+    main.p1s = p1sdec.out;
+    main.p2r = p2rdec.out;
+    main.p2s = p2sdec.out;
+    main.xchoice = mode;
     
-    checker.aluout = nested_alu.alu;
-    checker.start = 1;
-    checker.x = regfile.x;
+    dec_ctr.inc = main.dec_counter_inc;
+    dec_ctr.rst = main.dec_counter_rst;
+    seg_A.values = dec_ctr.digits;
     
-    regfile.ra = checker.ra;
-    regfile.rb = checker.rb;
-    regfile.write_address = checker.r;
-    regfile.rdata = checker.rdata;
-    regfile.werf = checker.werf;
+    seg_Err.values[2] = ERR2;
+    seg_Err.values[1] = ERR1;
+    seg_Err.values[0] = ERR0;
     
-      cmplt.d = checker.cmplt;
-      y.d = checker.y;
+    right_seg = ~seg_A.seg1;
+    middle_seg = ~seg_A.seg2;
+    left_seg = ~seg_A.seg3;
     
-    if (cmplt.q != 0) {
-      checker.start = 0;
-      cmplt.d = cmplt.q;
-      y.d = y.q;      
+    if (main.seven_seg_sel == 1) {
+      right_seg = ~seg_Err.seg1;
+      middle_seg = ~seg_Err.seg2;
+      left_seg = ~seg_Err.seg3;
     }
-     
+
     
-    aluval.d = nested_alu.alu;
-    
-    io_led[0][1:0] = cmplt.q;
-    io_led[0][4:2] = y.q;
-    io_led[2:1] = $build(aluval.q,2);
     
     
   }
 }
+
