@@ -48,3 +48,5 @@ pin right_seg[3] B12 pullup;
 pin right_seg[2] B9 pullup;
 pin right_seg[1] B6 pullup;
 pin right_seg[0] B3 pullup;
+
+pin win_led_2 C8 pulldown;
